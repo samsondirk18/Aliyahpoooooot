@@ -1,4 +1,4 @@
-[
+,[
   { "id": 1, 
     "title": "Miss na kita", 
     "text": "awww", 
@@ -9,7 +9,7 @@
     "id": 2, 
     "title": "Galit ako sayo", 
     "text": "Hala why?", 
-    "videoUrl": "..."
+    "videoUrl": "https://www.youtube.com/embed/rscNny8ixLw"
   },
   { 
     "id": 3, 
@@ -20,7 +20,7 @@
   { "id": 4,
     "title": "Im sad",
     "text": "Hugs!",
-    "videoUrl": "..."
+    "videoUrl": "https://www.youtube.com/embed/Fj1Mah00a9w"
   },
   { "id": 5,
     "title": "Galit ako sa mundo",
@@ -30,9 +30,10 @@
   { "id": 6,
     "title": "I'm stressed",
     "text": "Take a break",
-    "videoUrl": "..."
+    "videoUrl": "https://www.youtube.com/embed/tcUSNxoWZEQ"
   }
 ]
+
 
 
 
