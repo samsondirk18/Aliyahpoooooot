@@ -10,8 +10,10 @@
         body { 
             font-family: sans-serif; 
             text-align: center; 
-            padding: 65px; 
+            padding: 40px 20px; 
             background: #ffe1fa; 
+            overflow-x: hidden; /* Prevents horizontal scroll from hearts */
+            position: relative;
         }
 
         .cute-font-regular {
@@ -21,47 +23,94 @@
           font-size: 60px; 
         }
 
+        /* --- THE TRANSLUCENT BOX --- */
+        .title-container {
+            background: rgba(255, 255, 255, 0.45); 
+            padding: 15px 40px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 25px;
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 106, 255, 0.1);
+        }
+
+        #title {
+            margin: 0;
+            color: #ff47ff; /* A slightly darker pink for contrast */
+            line-height: 1.2;
+        }
+
         #content-box { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            max-width: 800px;
+            background: rgba(255, 255, 255, 0.85); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            max-width: 850px;
             margin: auto;
+            position: relative;
+            z-index: 10; /* Keeps the app above the floating hearts */
         }
 
         button { 
             font-family: "Cute Font", sans-serif;
-            font-size: 24px;
-            padding: 15px 30px; 
-            margin: 8px; 
+            font-size: 26px;
+            padding: 12px 25px; 
+            margin: 10px; 
             cursor: pointer; 
-            border-radius: 12px; 
+            border-radius: 15px; 
             border: none; 
             background: #ff6aff; 
             color: white; 
-            transition: 1.2s ease-in-out;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         button:hover {
-            background: #e65ce6;
-            transform: scale(1.05);
+            background: #ff47ff;
+            transform: scale(1.1) rotate(2deg);
         }
 
         iframe { 
             width: 100%; 
-            height: 400px; 
-            border-radius: 10px;
+            height: 450px; 
+            border-radius: 15px;
             border: none; 
             margin-top: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+
+        /* --- FLOATING HEARTS ANIMATION --- */
+        .heart {
+            position: fixed;
+            bottom: -100px;
+            font-size: 20px;
+            color: rgba(255, 106, 255, 0.3);
+            user-select: none;
+            z-index: 1;
+            animation: floatUp 10s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
 
+    <div id="heart-bg"></div>
+
     <div id="content-box">
-        <h1 id="title" class="cute-font-regular">How do you feel today?</h1>
-        <p id="description" style="font-family: 'Cute Font', sans-serif; font-size: 25px;">Choose from the buttons</p>
+        <div class="title-container">
+            <h1 id="title" class="cute-font-regular">How do you feel today?</h1>
+        </div>
+        
+        <p id="description" style="font-family: 'Cute Font', sans-serif; font-size: 28px; color: #b549b5;">
+            Choose from the buttons below
+        </p>
+        
         <div id="video-container"></div>
         
         <div id="button-grid">
@@ -69,19 +118,37 @@
             <button onclick="loadContent(1)">Galit ako sayo</button>
             <button onclick="loadContent(2)">Mahal kita today</button>
             <button onclick="loadContent(3)">Im sad</button>
-            <button onclick="loadContent(4)">Galit ako sa mundo</button>
-            <button onclick="loadContent(5)">I'm stressed</button>
+            <button onclick="loadContent(4)">I'm stressed/Galit ako sa mundo</button>
         </div>
     </div>
 
     <script>
+        // Function to create floating hearts in the background
+        function createHearts() {
+            const heartContainer = document.getElementById('heart-bg');
+            const heartIcons = ['❤️', '💖', '🌸', '✨'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 100 + "vw";
+                heart.style.animationDuration = (Math.random() * 5 + 5) + "s";
+                heart.style.fontSize = (Math.random() * 20 + 10) + "px";
+                
+                heartContainer.appendChild(heart);
+                
+                setTimeout(() => { heart.remove(); }, 10000);
+            }, 800);
+        }
+
         async function loadContent(index) {
             try {
-                // MAKE SURE THIS FILENAME MATCHES GITHUB EXACTLY
+                // Fetching the database file
                 const response = await fetch('database.json'); 
                 
                 if (!response.ok) {
-                    alert("File not found! Make sure it is named database.json on GitHub.");
+                    alert("Can't find database.json!");
                     return;
                 }
 
@@ -93,18 +160,19 @@
                     document.getElementById('description').innerText = item.text;
                     document.getElementById('video-container').innerHTML = 
                         `<iframe src="${item.videoUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-                } else {
-                    alert("This button doesn't have a video in the JSON file yet!");
+                    
+                    // Small effect: make the title bounce when content loads
+                    const titleBox = document.querySelector('.title-container');
+                    titleBox.style.transform = "scale(1.1)";
+                    setTimeout(() => { titleBox.style.transform = "scale(1)"; }, 300);
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("JSON Error: Check for missing commas in your database.json file.");
             }
         }
+
+        // Start hearts when page loads
+        window.onload = createHearts;
     </script>
 </body>
 </html>
-
-
-
-
